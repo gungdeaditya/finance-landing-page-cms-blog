@@ -14,16 +14,16 @@ export default function Navbar() {
           </div>
           <div className="hidden md:block">
             <div className="flex items-baseline space-x-6">
-              <Link href="#services" className="text-sm text-gray-400 hover:text-white transition-colors">
+              <Link href="/#services" className="text-sm text-gray-400 hover:text-white transition-colors">
                 Features
               </Link>
-              <Link href="#pricing" className="text-sm text-gray-400 hover:text-white transition-colors">
+              <Link href="/#pricing" className="text-sm text-gray-400 hover:text-white transition-colors">
                 Pricing
               </Link>
               <Link href="/blog" className="text-sm text-gray-400 hover:text-white transition-colors">
                 Blog
               </Link>
-              <Link href="#" className="text-sm text-gray-400 hover:text-white transition-colors">
+              <Link href="/#" className="text-sm text-gray-400 hover:text-white transition-colors">
                 Company
               </Link>
             </div>

@@ -15,6 +15,7 @@ export default function NewPostPage() {
     const [form, setForm] = useState({
         title: "",
         excerpt: "",
+        coverImage: "",
         content: "",
         author: "Admin",
         status: "draft" as "draft" | "published",
@@ -117,6 +118,25 @@ export default function NewPostPage() {
                         rows={2}
                         className="w-full px-4 py-3 bg-white/[0.04] border border-white/[0.08] rounded-xl text-white placeholder-gray-600 focus:outline-none focus:border-purple-500/40 focus:bg-white/[0.06] transition-all resize-none"
                     />
+                </div>
+
+                {/* Cover Image URL */}
+                <div>
+                    <label className="block text-sm font-medium text-gray-400 mb-2">
+                        Cover Image URL
+                    </label>
+                    <input
+                        type="url"
+                        value={form.coverImage}
+                        onChange={(e) => setForm({ ...form, coverImage: e.target.value })}
+                        placeholder="https://images.unsplash.com/..."
+                        className="w-full px-4 py-3 bg-white/[0.04] border border-white/[0.08] rounded-xl text-white placeholder-gray-600 focus:outline-none focus:border-purple-500/40 focus:bg-white/[0.06] transition-all"
+                    />
+                    {form.coverImage && (
+                        <div className="mt-3 rounded-xl overflow-hidden h-32 border border-white/[0.08]">
+                            <img src={form.coverImage} alt="Cover preview" className="w-full h-full object-cover" />
+                        </div>
+                    )}
                 </div>
 
                 {/* Author & Status row */}
