@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { Save, ArrowLeft, Eye } from "lucide-react";
@@ -12,6 +12,10 @@ export default function NewPostPage() {
     const router = useRouter();
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState("");
+
+    useEffect(() => {
+        document.title = "New Post — CMS Dashboard | FinanceFlow";
+    }, []);
     const [form, setForm] = useState({
         title: "",
         excerpt: "",

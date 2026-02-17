@@ -40,6 +40,7 @@ export default function EditPostPage() {
                         author: post.author,
                         status: post.status,
                     });
+                    document.title = `Edit: ${post.title} — CMS | FinanceFlow`;
                 } else {
                     setError("Post not found");
                 }

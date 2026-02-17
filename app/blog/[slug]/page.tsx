@@ -34,6 +34,7 @@ export default function BlogDetailPage() {
             })
             .then((data) => {
                 setPost(data);
+                document.title = `${data.title} | FinanceFlow Blog`;
                 setLoading(false);
             })
             .catch(() => setLoading(false));

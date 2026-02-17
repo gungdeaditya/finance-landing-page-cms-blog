@@ -32,6 +32,7 @@ export default function CMSPostsPage() {
     }
 
     useEffect(() => {
+        document.title = "Blog Posts — CMS Dashboard | FinanceFlow";
         fetchPosts();
     }, []);
 
@@ -155,8 +156,8 @@ export default function CMSPostsPage() {
                                     <td className="px-6 py-4 hidden sm:table-cell">
                                         <span
                                             className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider ${post.status === "published"
-                                                    ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
-                                                    : "bg-yellow-500/10 text-yellow-400 border border-yellow-500/20"
+                                                ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+                                                : "bg-yellow-500/10 text-yellow-400 border border-yellow-500/20"
                                                 }`}
                                         >
                                             {post.status}

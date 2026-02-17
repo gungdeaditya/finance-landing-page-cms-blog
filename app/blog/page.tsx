@@ -21,6 +21,7 @@ export default function BlogListingPage() {
     const [search, setSearch] = useState("");
 
     useEffect(() => {
+        document.title = "Blog — Insights & Resources | FinanceFlow";
         fetch("/api/cms/posts?status=published")
             .then((res) => res.json())
             .then((data) => {
