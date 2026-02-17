@@ -1,6 +1,7 @@
 import Database from "better-sqlite3";
 import path from "path";
 import fs from "fs";
+import crypto from "crypto";
 
 const DATA_DIR = path.join(process.cwd(), "cms", "data");
 const DB_PATH = path.join(DATA_DIR, "blog.db");
@@ -29,7 +30,27 @@ sqlite.exec(`
   );
 `);
 
-// Seed with sample data if empty
+// Create auth tables
+sqlite.exec(`
+  CREATE TABLE IF NOT EXISTS cms_users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    username TEXT NOT NULL UNIQUE,
+    password_hash TEXT NOT NULL,
+    created_at INTEGER NOT NULL
+  );
+`);
+
+sqlite.exec(`
+  CREATE TABLE IF NOT EXISTS cms_sessions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    token TEXT NOT NULL UNIQUE,
+    user_id INTEGER NOT NULL REFERENCES cms_users(id),
+    expires_at INTEGER NOT NULL,
+    created_at INTEGER NOT NULL
+  );
+`);
+
+// ─── Seed posts if empty ─────────────────────────────────
 const count = sqlite.prepare("SELECT COUNT(*) as count FROM posts").get() as {
   count: number;
 };
@@ -226,6 +247,26 @@ Automated compliance reporting should generate:
 
   insertMany();
   console.log("✅ Seeded 3 sample blog posts");
+}
+
+// ─── Seed default admin user if no users exist ───────────
+const userCount = sqlite
+  .prepare("SELECT COUNT(*) as count FROM cms_users")
+  .get() as { count: number };
+
+if (userCount.count === 0) {
+  const salt = crypto.randomBytes(16).toString("hex");
+  const hash = crypto.scryptSync("admin123", salt, 64).toString("hex");
+  const passwordHash = `${salt}:${hash}`;
+  const now = Math.floor(Date.now() / 1000);
+
+  sqlite
+    .prepare(
+      "INSERT INTO cms_users (username, password_hash, created_at) VALUES (?, ?, ?)"
+    )
+    .run("admin", passwordHash, now);
+
+  console.log("✅ Seeded default admin user (username: admin, password: admin123)");
 }
 
 console.log("✅ Database migration complete");

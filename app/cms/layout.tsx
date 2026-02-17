@@ -17,15 +17,30 @@ export default function CMSLayout({ children }: { children: React.ReactNode }) {
             return;
         }
 
-        const auth = localStorage.getItem("cms_authenticated");
-        if (!auth) {
-            router.push("/cms/login");
-        } else {
-            setIsAuthenticated(true);
-        }
+        // Validate session via API
+        fetch("/api/cms/auth/session", { credentials: "include" })
+            .then((res) => {
+                if (!res.ok) {
+                    router.push("/cms/login");
+                } else {
+                    setIsAuthenticated(true);
+                }
+            })
+            .catch(() => {
+                router.push("/cms/login");
+            });
     }, [pathname, router]);
 
-    const handleLogout = () => {
+    const handleLogout = async () => {
+        try {
+            await fetch("/api/cms/auth/logout", {
+                method: "POST",
+                credentials: "include",
+            });
+        } catch {
+            // Continue with client-side cleanup even if API fails
+        }
+        localStorage.removeItem("cms_session");
         localStorage.removeItem("cms_authenticated");
         router.push("/cms/login");
     };

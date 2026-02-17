@@ -27,7 +27,7 @@ export default function EditPostPage() {
 
     useEffect(() => {
         // Fetch by listing all posts and finding by id since we need the slug to fetch
-        fetch("/api/cms/posts")
+        fetch("/api/cms/posts", { credentials: "include" })
             .then((res) => res.json())
             .then((posts) => {
                 const post = posts.find((p: any) => p.id === parseInt(postId, 10));
@@ -73,6 +73,7 @@ export default function EditPostPage() {
             const res = await fetch(`/api/cms/posts/${postId}`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
+                credentials: "include",
                 body: JSON.stringify(form),
             });
 
