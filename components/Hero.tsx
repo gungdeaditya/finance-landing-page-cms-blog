@@ -2,7 +2,7 @@
 
 import { useRef } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { Float, OrbitControls, Stars } from "@react-three/drei";
+import { Float, Stars, Line } from "@react-three/drei";
 import { motion } from "framer-motion";
 import * as THREE from "three";
 
@@ -11,32 +11,39 @@ function GeometricShape() {
 
     useFrame((state) => {
         if (meshRef.current) {
-            meshRef.current.rotation.x = state.clock.getElapsedTime() * 0.2;
-            meshRef.current.rotation.y = state.clock.getElapsedTime() * 0.3;
+            meshRef.current.rotation.y = state.clock.getElapsedTime() * 0.05;
+            meshRef.current.rotation.x = Math.sin(state.clock.getElapsedTime() * 0.1) * 0.1;
         }
     });
 
     return (
         <group ref={meshRef}>
-            <Float speed={2} rotationIntensity={0.5} floatIntensity={1}>
+            <Float speed={1.5} rotationIntensity={0.2} floatIntensity={0.5}>
+                {/* Main subtle wireframe */}
                 <mesh>
-                    <icosahedronGeometry args={[2, 0]} />
-                    <meshStandardMaterial color="#1e40af" wireframe transparent opacity={0.3} />
-                </mesh>
-                <mesh>
-                    <icosahedronGeometry args={[1.5, 0]} />
-                    <meshStandardMaterial color="#60a5fa" wireframe transparent opacity={0.5} />
+                    <icosahedronGeometry args={[2.5, 1]} />
+                    <meshBasicMaterial color="#404040" wireframe transparent opacity={0.15} />
                 </mesh>
 
-                {/* Floating particles representing data points */}
-                {Array.from({ length: 20 }).map((_, i) => {
-                    const x = (Math.random() - 0.5) * 6;
-                    const y = (Math.random() - 0.5) * 6;
-                    const z = (Math.random() - 0.5) * 6;
+                {/* Inner glowing core */}
+                <mesh>
+                    <sphereGeometry args={[1, 32, 32]} />
+                    <meshBasicMaterial color="#5E6AD2" transparent opacity={0.05} />
+                </mesh>
+
+                {/* Floating particles - subtle dust */}
+                {Array.from({ length: 40 }).map((_, i) => {
+                    const r = 4;
+                    const theta = Math.random() * Math.PI * 2;
+                    const phi = Math.acos(2 * Math.random() - 1);
+                    const x = r * Math.sin(phi) * Math.cos(theta);
+                    const y = r * Math.sin(phi) * Math.sin(theta);
+                    const z = r * Math.cos(phi);
+
                     return (
                         <mesh key={i} position={[x, y, z]}>
-                            <sphereGeometry args={[0.05, 16, 16]} />
-                            <meshStandardMaterial color="#93c5fd" emissive="#60a5fa" emissiveIntensity={2} />
+                            <sphereGeometry args={[0.02, 8, 8]} />
+                            <meshBasicMaterial color="#ffffff" transparent opacity={0.3} />
                         </mesh>
                     );
                 })}
@@ -48,60 +55,73 @@ function GeometricShape() {
 function FinanceScene() {
     return (
         <Canvas className="h-full w-full" camera={{ position: [0, 0, 8] }}>
-            <fog attach="fog" args={['#000', 5, 20]} />
-            <ambientLight intensity={1} />
-            <pointLight position={[10, 10, 10]} intensity={2} color="#60a5fa" />
-            <pointLight position={[-10, -10, -10]} intensity={1} color="#3b82f6" />
-
-            <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={1} />
+            <fog attach="fog" args={['#000212', 5, 20]} />
+            <ambientLight intensity={0.5} />
 
             <GeometricShape />
-
-            <OrbitControls enableZoom={false} enablePan={false} autoRotate autoRotateSpeed={0.5} />
         </Canvas>
     );
 }
 
 export default function Hero() {
     return (
-        <section className="relative h-screen flex flex-col items-center justify-center overflow-hidden bg-black text-white">
+        <section className="relative h-screen flex flex-col items-center justify-center overflow-hidden bg-[#000212]">
+            {/* Background Glows */}
+            <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-purple-900/20 rounded-full blur-[120px]" />
+            <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] bg-blue-900/20 rounded-full blur-[120px]" />
+
+            {/* 3D Scene */}
             <div className="absolute inset-0 z-0">
                 <FinanceScene />
             </div>
 
-            <div className="relative z-10 text-center px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto pointer-events-none">
+            {/* Grid Pattern Overlay */}
+            <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:100px_100px] [mask-image:radial-gradient(ellipse_at_center,black_40%,transparent_80%)] pointer-events-none" />
+
+            <div className="relative z-10 text-center px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto">
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5 }}
+                    className="inline-block mb-6 px-3 py-1 rounded-full border border-white/10 bg-white/5 backdrop-blur-sm text-sm text-gray-300"
+                >
+                    Reimagining Financial Infrastructure
+                </motion.div>
+
                 <motion.h1
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 1, ease: "easeOut" }}
-                    className="text-6xl md:text-8xl font-black tracking-tight mb-8 bg-clip-text text-transparent bg-gradient-to-b from-white to-gray-500"
+                    transition={{ duration: 0.8, delay: 0.1 }}
+                    className="text-6xl md:text-8xl font-bold tracking-tight mb-8 text-white drop-shadow-2xl"
                     style={{ fontFamily: 'var(--font-outfit)' }}
                 >
-                    FUTURE FINANCE
+                    Precision in <br />
+                    <span className="text-transparent bg-clip-text bg-gradient-to-b from-white to-white/40">
+                        Every Transaction.
+                    </span>
                 </motion.h1>
 
                 <motion.p
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.8, delay: 0.3 }}
-                    className="text-xl md:text-2xl text-gray-400 mb-12 max-w-2xl mx-auto font-light"
+                    className="text-xl md:text-2xl text-gray-400 mb-12 max-w-2xl mx-auto font-light leading-relaxed"
                     style={{ fontFamily: 'var(--font-space-grotesk)' }}
                 >
-                    Architecting the next generation of financial infrastructure for global tech leaders.
+                    The operating system for modern finance teams. Real-time insights, automated workflows, and global compliance.
                 </motion.p>
 
                 <motion.div
-                    initial={{ opacity: 0, scale: 0.9 }}
+                    initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.5, delay: 0.6 }}
-                    className="flex flex-col sm:flex-row gap-6 justify-center pointer-events-auto"
+                    transition={{ duration: 0.5, delay: 0.5 }}
+                    className="flex flex-col sm:flex-row gap-6 justify-center items-center"
                 >
-                    <a href="#services" className="group relative px-8 py-4 bg-white text-black rounded-full font-bold text-lg transition-all hover:bg-gray-200 overflow-hidden">
-                        <span className="relative z-10">Explore Solutions</span>
-                        <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-purple-400 opacity-0 group-hover:opacity-20 transition-opacity" />
+                    <a href="#contact" className="group relative px-8 py-3 bg-[#5E6AD2] hover:bg-[#4b55aa] text-white rounded-full font-medium text-lg transition-all shadow-[0_0_20px_rgba(94,106,210,0.3)] hover:shadow-[0_0_30px_rgba(94,106,210,0.5)]">
+                        Start Integration
                     </a>
-                    <a href="#contact" className="px-8 py-4 bg-transparent border border-white/30 hover:border-white rounded-full font-bold text-lg transition-all text-white hover:bg-white/5 backdrop-blur-sm">
-                        Contact Us
+                    <a href="#services" className="px-8 py-3 text-gray-300 hover:text-white font-medium text-lg transition-colors flex items-center gap-2">
+                        View Features <span aria-hidden="true">→</span>
                     </a>
                 </motion.div>
             </div>

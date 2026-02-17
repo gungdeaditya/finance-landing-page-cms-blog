@@ -1,59 +1,84 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { BarChart3, Globe, Shield, Zap } from "lucide-react";
+import { BarChart3, Globe, Shield, Zap, ArrowUpRight } from "lucide-react";
+import { clsx } from "clsx";
 
 const services = [
     {
-        title: "Financial Consulting",
-        description: "Strategic advice to optimize your financial operations and growth.",
-        icon: BarChart3,
-    },
-    {
-        title: "Tech Solutions",
-        description: "Custom software tailored for fintech and enterprise finance.",
-        icon: Zap,
-    },
-    {
         title: "Global Compliance",
-        description: "Navigating complex international regulations with ease.",
+        description: "Automatic regulatory adherence across 50+ jurisdictions.",
         icon: Globe,
+        colSpan: "md:col-span-2",
+    },
+    {
+        title: "Real-time Analytics",
+        description: "Process millions of data points with sub-second latency.",
+        icon: BarChart3,
+        colSpan: "md:col-span-1",
     },
     {
         title: "Risk Management",
-        description: "Advanced analytics to identify and mitigate financial risks.",
+        description: "AI-driven fraud detection and risk scoring models.",
         icon: Shield,
+        colSpan: "md:col-span-1",
+    },
+    {
+        title: "API-First Platform",
+        description: "Seamless integration with your existing tech stack. Developer-friendly documentation and SDKs.",
+        icon: Zap,
+        colSpan: "md:col-span-2",
     },
 ];
 
 export default function Services() {
     return (
-        <section id="services" className="py-24 bg-gray-50 dark:bg-black text-black dark:text-white">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="text-center mb-16">
-                    <h2 className="text-3xl md:text-5xl font-bold mb-4">Our Expertise</h2>
-                    <p className="text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-                        Comprehensive solutions designed for the modern financial landscape.
+        <section id="services" className="py-32 bg-[#000212] relative">
+            {/* Background Glow */}
+            <div className="absolute top-[20%] left-[50%] -translate-x-1/2 w-[80%] h-[60%] bg-blue-900/10 rounded-full blur-[100px] pointer-events-none" />
+
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                <div className="text-center mb-20">
+                    <h2 className="text-3xl md:text-5xl font-bold mb-6 text-white" style={{ fontFamily: 'var(--font-outfit)' }}>
+                        Powering the <br /> <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">Financial Web</span>
+                    </h2>
+                    <p className="text-xl text-gray-400 max-w-2xl mx-auto font-light">
+                        Built for scale, security, and speed.
                     </p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     {services.map((service, index) => (
                         <motion.div
                             key={index}
                             initial={{ opacity: 0, y: 20 }}
                             whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true }}
+                            viewport={{ once: true, margin: "-100px" }}
                             transition={{ duration: 0.5, delay: index * 0.1 }}
-                            className="bg-white dark:bg-gray-900 p-8 rounded-2xl shadow-xl hover:shadow-2xl transition-shadow border border-gray-100 dark:border-gray-800"
+                            className={clsx(
+                                "group relative p-8 rounded-3xl border border-white/10 bg-white/[0.02] hover:bg-white/[0.04] transition-all overflow-hidden",
+                                service.colSpan
+                            )}
                         >
-                            <div className="w-14 h-14 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center mb-6 text-blue-600 dark:text-blue-400">
-                                <service.icon size={28} />
+                            {/* Hover Glow */}
+                            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-[radial-gradient(800px_circle_at_var(--mouse-x)_var(--mouse-y),rgba(255,255,255,0.06),transparent_40%)]" />
+
+                            <div className="relative z-10 h-full flex flex-col">
+                                <div className="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center mb-6 text-white border border-white/10 group-hover:scale-110 transition-transform duration-300">
+                                    <service.icon size={24} />
+                                </div>
+
+                                <h3 className="text-xl font-bold mb-3 text-white" style={{ fontFamily: 'var(--font-outfit)' }}>
+                                    {service.title}
+                                </h3>
+                                <p className="text-gray-400 leading-relaxed mb-8 flex-grow" style={{ fontFamily: 'var(--font-space-grotesk)' }}>
+                                    {service.description}
+                                </p>
+
+                                <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-2 text-sm font-medium text-white/70">
+                                    Learn more <ArrowUpRight size={16} />
+                                </div>
                             </div>
-                            <h3 className="text-xl font-bold mb-3">{service.title}</h3>
-                            <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
-                                {service.description}
-                            </p>
                         </motion.div>
                     ))}
                 </div>
