@@ -1,11 +1,44 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { FileText, PlusCircle, Home } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import { FileText, PlusCircle, Home, LogOut } from "lucide-react";
 
 export default function CMSLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
+    const router = useRouter();
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+    useEffect(() => {
+        // Skip auth check on login page
+        if (pathname === "/cms/login") {
+            setIsAuthenticated(true);
+            return;
+        }
+
+        const auth = localStorage.getItem("cms_authenticated");
+        if (!auth) {
+            router.push("/cms/login");
+        } else {
+            setIsAuthenticated(true);
+        }
+    }, [pathname, router]);
+
+    const handleLogout = () => {
+        localStorage.removeItem("cms_authenticated");
+        router.push("/cms/login");
+    };
+
+    // If on login page, render children without sidebar
+    if (pathname === "/cms/login") {
+        return <>{children}</>;
+    }
+
+    // Prevent flashing content while checking auth
+    if (!isAuthenticated) {
+        return null;
+    }
 
     const navItems = [
         { href: "/cms", label: "All Posts", icon: FileText },
@@ -34,8 +67,8 @@ export default function CMSLayout({ children }: { children: React.ReactNode }) {
                                 key={item.href}
                                 href={item.href}
                                 className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-all ${isActive
-                                        ? "bg-purple-500/10 text-purple-400 border border-purple-500/20"
-                                        : "text-gray-500 hover:text-white hover:bg-white/[0.04]"
+                                    ? "bg-purple-500/10 text-purple-400 border border-purple-500/20"
+                                    : "text-gray-500 hover:text-white hover:bg-white/[0.04]"
                                     }`}
                             >
                                 <item.icon size={16} />
@@ -45,7 +78,14 @@ export default function CMSLayout({ children }: { children: React.ReactNode }) {
                     })}
                 </nav>
 
-                <div className="absolute bottom-4 left-4 right-4">
+                <div className="absolute bottom-4 left-4 right-4 space-y-2">
+                    <button
+                        onClick={handleLogout}
+                        className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-500 hover:text-red-400 hover:bg-white/[0.04] transition-all text-left"
+                    >
+                        <LogOut size={16} />
+                        Logout
+                    </button>
                     <Link
                         href="/"
                         className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:text-white hover:bg-white/[0.04] transition-all"
@@ -67,8 +107,8 @@ export default function CMSLayout({ children }: { children: React.ReactNode }) {
                                 key={item.href}
                                 href={item.href}
                                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs whitespace-nowrap transition-all ${isActive
-                                        ? "bg-purple-500/10 text-purple-400 border border-purple-500/20"
-                                        : "text-gray-500 border border-white/[0.06] hover:text-white"
+                                    ? "bg-purple-500/10 text-purple-400 border border-purple-500/20"
+                                    : "text-gray-500 border border-white/[0.06] hover:text-white"
                                     }`}
                             >
                                 <item.icon size={12} />
@@ -76,6 +116,13 @@ export default function CMSLayout({ children }: { children: React.ReactNode }) {
                             </Link>
                         );
                     })}
+                    <button
+                        onClick={handleLogout}
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs whitespace-nowrap text-gray-500 border border-white/[0.06] hover:text-red-400 transition-all"
+                    >
+                        <LogOut size={12} />
+                        Logout
+                    </button>
                     <Link
                         href="/"
                         className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs whitespace-nowrap text-gray-500 border border-white/[0.06] hover:text-white transition-all"
