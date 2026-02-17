@@ -1,4 +1,6 @@
 
+import Link from 'next/link';
+
 export default function Footer() {
     return (
         <footer className="bg-[#000212] text-white py-16 border-t border-white/[0.05]">
@@ -13,27 +15,24 @@ export default function Footer() {
                     <div>
                         <h4 className="text-sm font-semibold mb-4 text-gray-300">Product</h4>
                         <ul className="space-y-2 text-gray-500 text-sm">
-                            <li><a href="#" className="hover:text-white transition-colors">Features</a></li>
-                            <li><a href="#" className="hover:text-white transition-colors">Integrations</a></li>
-                            <li><a href="#" className="hover:text-white transition-colors">Pricing</a></li>
-                            <li><a href="#" className="hover:text-white transition-colors">Changelog</a></li>
+                            <li><Link href="/#services" className="hover:text-white transition-colors">Features</Link></li>
+                            <li><Link href="/#pricing" className="hover:text-white transition-colors">Pricing</Link></li>
                         </ul>
                     </div>
                     <div>
                         <h4 className="text-sm font-semibold mb-4 text-gray-300">Company</h4>
                         <ul className="space-y-2 text-gray-500 text-sm">
-                            <li><a href="#" className="hover:text-white transition-colors">About</a></li>
-                            <li><a href="#" className="hover:text-white transition-colors">Careers</a></li>
-                            <li><a href="/blog" className="hover:text-white transition-colors">Blog</a></li>
-                            <li><a href="#" className="hover:text-white transition-colors">Contact</a></li>
+                            <li><Link href="/about" className="hover:text-white transition-colors">About</Link></li>
+                            <li><Link href="/blog" className="hover:text-white transition-colors">Blog</Link></li>
+                            <li><Link href="/contact" className="hover:text-white transition-colors">Contact</Link></li>
                         </ul>
                     </div>
                     <div>
                         <h4 className="text-sm font-semibold mb-4 text-gray-300">Legal</h4>
                         <ul className="space-y-2 text-gray-500 text-sm">
-                            <li><a href="#" className="hover:text-white transition-colors">Privacy</a></li>
-                            <li><a href="#" className="hover:text-white transition-colors">Terms</a></li>
-                            <li><a href="#" className="hover:text-white transition-colors">Security</a></li>
+                            <li><Link href="/legal/privacy" className="hover:text-white transition-colors">Privacy</Link></li>
+                            <li><Link href="/legal/terms" className="hover:text-white transition-colors">Terms</Link></li>
+                            <li><Link href="/legal/security" className="hover:text-white transition-colors">Security</Link></li>
                         </ul>
                     </div>
                 </div>

@@ -23,14 +23,17 @@ export default function Navbar() {
               <Link href="/blog" className="text-sm text-gray-400 hover:text-white transition-colors">
                 Blog
               </Link>
-              <Link href="/#" className="text-sm text-gray-400 hover:text-white transition-colors">
-                Company
+              <Link href="/about" className="text-sm text-gray-400 hover:text-white transition-colors">
+                About
+              </Link>
+              <Link href="/contact" className="text-sm text-gray-400 hover:text-white transition-colors">
+                Contact
               </Link>
             </div>
           </div>
           <div>
-            <Link href="#contact" className="text-sm bg-white text-black hover:bg-gray-200 px-4 py-1.5 rounded-full font-medium transition-colors">
-              Log in
+            <Link href="/contact" className="text-sm bg-white text-black hover:bg-gray-200 px-4 py-1.5 rounded-full font-medium transition-colors">
+              Contact Sales
             </Link>
           </div>
         </div>

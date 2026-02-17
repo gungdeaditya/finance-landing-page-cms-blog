@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { Check } from "lucide-react";
 import { motion } from "framer-motion";
@@ -90,14 +91,14 @@ export default function Pricing() {
                                     </li>
                                 ))}
                             </ul>
-                            <button className={clsx(
-                                "w-full py-3 rounded-xl font-medium text-sm transition-all border",
+                            <Link href="/contact" className={clsx(
+                                "w-full py-3 rounded-xl font-medium text-sm transition-all border block text-center",
                                 tier.popular
                                     ? "bg-[#5E6AD2] hover:bg-[#4b55aa] text-white border-transparent shadow-[0_0_20px_rgba(94,106,210,0.2)]"
                                     : "bg-white/5 hover:bg-white/10 text-white border-white/10"
                             )}>
                                 Choose {tier.name}
-                            </button>
+                            </Link>
                         </motion.div>
                     ))}
                 </div>

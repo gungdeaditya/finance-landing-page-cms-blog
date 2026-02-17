@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { motion } from "framer-motion";
 import { BarChart3, Globe, Shield, Zap, ArrowUpRight } from "lucide-react";
 import { clsx } from "clsx";
@@ -7,24 +8,28 @@ import { clsx } from "clsx";
 const services = [
     {
         title: "Global Compliance",
+        slug: "global-compliance",
         description: "Automatic regulatory adherence across 50+ jurisdictions.",
         icon: Globe,
         colSpan: "md:col-span-2",
     },
     {
         title: "Real-time Analytics",
+        slug: "real-time-analytics",
         description: "Process millions of data points with sub-second latency.",
         icon: BarChart3,
         colSpan: "md:col-span-1",
     },
     {
         title: "Risk Management",
+        slug: "risk-management",
         description: "AI-driven fraud detection and risk scoring models.",
         icon: Shield,
         colSpan: "md:col-span-1",
     },
     {
         title: "API-First Platform",
+        slug: "api-first-platform",
         description: "Seamless integration with your existing tech stack. Developer-friendly documentation and SDKs.",
         icon: Zap,
         colSpan: "md:col-span-2",
@@ -49,14 +54,11 @@ export default function Services() {
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     {services.map((service, index) => (
-                        <motion.div
+                        <Link
+                            href={`/features/${service.slug}`}
                             key={index}
-                            initial={{ opacity: 0, y: 20 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true, margin: "-100px" }}
-                            transition={{ duration: 0.5, delay: index * 0.1 }}
                             className={clsx(
-                                "group relative p-8 rounded-3xl border border-white/10 bg-white/[0.02] hover:bg-white/[0.04] transition-all overflow-hidden",
+                                "group relative p-8 rounded-3xl border border-white/10 bg-white/[0.02] hover:bg-white/[0.04] transition-all overflow-hidden block",
                                 service.colSpan
                             )}
                         >
@@ -79,7 +81,7 @@ export default function Services() {
                                     Learn more <ArrowUpRight size={16} />
                                 </div>
                             </div>
-                        </motion.div>
+                        </Link>
                     ))}
                 </div>
             </div>
