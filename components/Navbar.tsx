@@ -20,6 +20,9 @@ export default function Navbar() {
               <Link href="#pricing" className="text-sm text-gray-400 hover:text-white transition-colors">
                 Pricing
               </Link>
+              <Link href="/blog" className="text-sm text-gray-400 hover:text-white transition-colors">
+                Blog
+              </Link>
               <Link href="#" className="text-sm text-gray-400 hover:text-white transition-colors">
                 Company
               </Link>
