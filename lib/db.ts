@@ -2,6 +2,7 @@ import { drizzle } from "drizzle-orm/better-sqlite3";
 import Database from "better-sqlite3";
 import * as schema from "../cms/db/schema";
 import path from "path";
+import fs from "fs";
 
 /**
  * Unified database connection.
@@ -28,6 +29,12 @@ function createDb() {
   const dbPath = databaseUrl
     ? databaseUrl.replace("file:", "")
     : path.join(process.cwd(), "cms", "data", "blog.db");
+
+  // Ensure the directory exists before opening the database
+  const dbDir = path.dirname(dbPath);
+  if (!fs.existsSync(dbDir)) {
+    fs.mkdirSync(dbDir, { recursive: true });
+  }
 
   const sqlite = new Database(dbPath);
   sqlite.pragma("journal_mode = WAL");

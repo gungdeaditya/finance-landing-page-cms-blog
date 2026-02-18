@@ -1,36 +1,122 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# FinanceFlow — Landing Page + CMS Blog
+
+A modern finance landing page built with **Next.js**, **Three.js**, and **Framer Motion**, featuring a built-in CMS for managing blog posts backed by **SQLite** + **Drizzle ORM**.
+
+---
+
+## Prerequisites
+
+- **Node.js** ≥ 18
+- **npm** (comes with Node.js)
+
+---
 
 ## Getting Started
 
-First, run the development server:
+### 1. Clone the repository
+
+```bash
+git clone <your-repo-url>
+cd finance-landing-page-cms-blog
+```
+
+### 2. Install dependencies
+
+```bash
+npm install
+```
+
+### 3. Set up environment variables
+
+```bash
+cp .env.example .env
+```
+
+For **local development**, no changes are needed — the app uses a local SQLite file by default (`cms/data/blog.db`).
+
+For **production** (Turso), fill in `DATABASE_URL` and `DATABASE_AUTH_TOKEN` in `.env`.
+
+### 4. Push the database schema
+
+```bash
+npm run db:push
+```
+
+### 5. Seed the database
+
+This creates a default **admin user** and **5 sample blog posts**:
+
+```bash
+npm run db:seed
+```
+
+> **Default CMS credentials:**
+> - Username: `admin`
+> - Password: `admin123`
+
+### 6. Start the development server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) to see the landing page.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Available Scripts
 
-## Learn More
+| Script | Command | Description |
+|--------|---------|-------------|
+| `dev` | `npm run dev` | Start the Next.js dev server |
+| `build` | `npm run build` | Create a production build |
+| `start` | `npm run start` | Start the production server |
+| `lint` | `npm run lint` | Run ESLint |
+| `db:push` | `npm run db:push` | Push schema changes to the database |
+| `db:seed` | `npm run db:seed` | Seed the database with sample data |
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Project Structure
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```
+├── app/
+│   ├── api/              # API routes (posts, auth)
+│   ├── blog/             # Blog listing & detail pages
+│   ├── cms/              # CMS admin panel
+│   ├── features/         # Feature pages
+│   ├── about/            # About page
+│   ├── contact/          # Contact page
+│   └── legal/            # Legal pages
+├── cms/
+│   ├── db/
+│   │   ├── schema.ts     # Drizzle ORM schema
+│   │   └── seed.ts       # Database seed script
+│   └── data/             # SQLite database (auto-created)
+├── components/           # Shared React components
+├── lib/
+│   ├── db.ts             # Database connection
+│   ├── auth.ts           # Authentication utilities
+│   └── posts.ts          # Post CRUD operations
+└── public/               # Static assets
+```
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## CMS Usage
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. Navigate to [http://localhost:3000/cms](http://localhost:3000/cms)
+2. Log in with `admin` / `admin123`
+3. Create, edit, and publish blog posts with Markdown support and cover images
+
+---
+
+## Tech Stack
+
+- **Framework:** Next.js 16 (App Router)
+- **3D Graphics:** Three.js + React Three Fiber
+- **Animations:** Framer Motion
+- **Database:** SQLite (local) / Turso (production)
+- **ORM:** Drizzle ORM
+- **Styling:** Tailwind CSS 4
+- **Icons:** Lucide React
