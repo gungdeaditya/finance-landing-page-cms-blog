@@ -297,6 +297,7 @@ async function seed() {
   } else {
     for (const sql of CREATE_TABLES_SQL) {
       await connection.client.execute(sql);
+      console.log("  → table created");
     }
   }
   console.log("✅ Tables created");
@@ -334,6 +335,8 @@ async function seed() {
   // ─── Cleanup ────────────────────────────────────────────
   if (connection.type === "local") {
     connection.sqlite.close();
+  } else {
+    connection.client.close();
   }
 
   console.log("\n🎉 Seed completed successfully!");
@@ -344,7 +347,9 @@ async function seed() {
   console.log("────────────────────────────────────────");
 }
 
-seed().catch((err) => {
-  console.error("❌ Seed failed:", err);
-  process.exit(1);
-});
+seed()
+  .then(() => process.exit(0))
+  .catch((err) => {
+    console.error("❌ Seed failed:", err);
+    process.exit(1);
+  });
