@@ -4,11 +4,12 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "npm run db:setup && next build",
     "start": "next start",
     "lint": "eslint",
     "db:push": "npx drizzle-kit push",
-    "db:seed": "npx tsx cms/db/seed.ts"
+    "db:seed": "npx tsx cms/db/seed.ts",
+    "db:setup": "npm run db:push && npm run db:seed"
   },
   "dependencies": {
     "@libsql/client": "^0.17.0",

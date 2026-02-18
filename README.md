@@ -69,11 +69,12 @@ Open [http://localhost:3000](http://localhost:3000) to see the landing page.
 | Script | Command | Description |
 |--------|---------|-------------|
 | `dev` | `npm run dev` | Start the Next.js dev server |
-| `build` | `npm run build` | Create a production build |
+| `build` | `npm run build` | Push schema + seed + Next.js build |
 | `start` | `npm run start` | Start the production server |
 | `lint` | `npm run lint` | Run ESLint |
 | `db:push` | `npm run db:push` | Push schema changes to the database |
 | `db:seed` | `npm run db:seed` | Seed the database with sample data |
+| `db:setup` | `npm run db:setup` | Push schema + seed (runs before build) |
 
 ---
 
@@ -108,6 +109,37 @@ Open [http://localhost:3000](http://localhost:3000) to see the landing page.
 1. Navigate to [http://localhost:3000/cms](http://localhost:3000/cms)
 2. Log in with `admin` / `admin123`
 3. Create, edit, and publish blog posts with Markdown support and cover images
+
+---
+
+## Deploy to Vercel
+
+The build pipeline automatically pushes the database schema and seeds data on every deploy.
+
+### 1. Create a Turso Database
+
+Sign up at [app.turso.tech](https://app.turso.tech/) and create a new database. Copy:
+- **Database URL** — `libsql://your-db-name.turso.io`
+- **Auth Token** — generate from the database settings page
+
+### 2. Add Environment Variables in Vercel
+
+Go to your Vercel project → **Settings** → **Environment Variables** and add:
+
+| Variable | Value |
+|----------|-------|
+| `DATABASE_URL` | `libsql://your-db-name.turso.io` |
+| `DATABASE_AUTH_TOKEN` | Your Turso auth token |
+
+### 3. Deploy
+
+Push to your connected Git branch or trigger a deploy from the Vercel dashboard. The build will automatically:
+
+1. `db:push` — Push the schema to Turso
+2. `db:seed` — Seed the admin user + sample posts (skips if data already exists)
+3. `next build` — Build the Next.js app
+
+> **Note:** The seed script is idempotent — it only inserts data if the tables are empty, so subsequent deploys won't duplicate data.
 
 ---
 

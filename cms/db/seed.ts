@@ -1,5 +1,3 @@
-import Database from "better-sqlite3";
-import { drizzle } from "drizzle-orm/better-sqlite3";
 import path from "path";
 import fs from "fs";
 import crypto from "crypto";
@@ -15,9 +13,27 @@ function hashPassword(password: string): string {
   return `${salt}:${hash}`;
 }
 
-// ─── Main seed function ─────────────────────────────────
-async function seed() {
-  // Ensure data directory exists
+// ─── Database connection (supports local SQLite + remote Turso) ──
+async function createSeedDb() {
+  const databaseUrl = process.env.DATABASE_URL;
+  const isRemote = databaseUrl && !databaseUrl.startsWith("file:");
+
+  if (isRemote) {
+    // Production: use libSQL / Turso
+    const { createClient } = await import("@libsql/client");
+    const { drizzle } = await import("drizzle-orm/libsql");
+    const client = createClient({
+      url: databaseUrl,
+      authToken: process.env.DATABASE_AUTH_TOKEN,
+    });
+    console.log(`🌐 Connected to remote Turso database`);
+    return { db: drizzle(client, { schema }), client, type: "turso" as const };
+  }
+
+  // Local: use better-sqlite3
+  const Database = (await import("better-sqlite3")).default;
+  const { drizzle } = await import("drizzle-orm/better-sqlite3");
+
   const dataDir = path.join(__dirname, "..", "data");
   if (!fs.existsSync(dataDir)) {
     fs.mkdirSync(dataDir, { recursive: true });
@@ -27,76 +43,47 @@ async function seed() {
   const dbPath = path.join(dataDir, "blog.db");
   const sqlite = new Database(dbPath);
   sqlite.pragma("journal_mode = WAL");
-  const db = drizzle(sqlite, { schema });
+  console.log(`💾 Connected to local SQLite: ${dbPath}`);
+  return { db: drizzle(sqlite, { schema }), sqlite, type: "local" as const };
+}
 
-  console.log("🔧 Creating tables...");
+// ─── SQL statements for table creation ───────────────────
+const CREATE_TABLES_SQL = [
+  `CREATE TABLE IF NOT EXISTS posts (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    title TEXT NOT NULL,
+    slug TEXT NOT NULL UNIQUE,
+    excerpt TEXT NOT NULL DEFAULT '',
+    content TEXT NOT NULL DEFAULT '',
+    cover_image TEXT,
+    author TEXT NOT NULL DEFAULT 'Admin',
+    status TEXT NOT NULL DEFAULT 'draft' CHECK(status IN ('draft', 'published')),
+    created_at INTEGER NOT NULL,
+    updated_at INTEGER NOT NULL
+  )`,
+  `CREATE TABLE IF NOT EXISTS cms_users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    username TEXT NOT NULL UNIQUE,
+    password_hash TEXT NOT NULL,
+    created_at INTEGER NOT NULL
+  )`,
+  `CREATE TABLE IF NOT EXISTS cms_sessions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    token TEXT NOT NULL UNIQUE,
+    user_id INTEGER NOT NULL REFERENCES cms_users(id),
+    expires_at INTEGER NOT NULL,
+    created_at INTEGER NOT NULL
+  )`,
+];
 
-  // Create tables manually via raw SQL (drizzle push would do this normally)
-  sqlite.exec(`
-    CREATE TABLE IF NOT EXISTS posts (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      title TEXT NOT NULL,
-      slug TEXT NOT NULL UNIQUE,
-      excerpt TEXT NOT NULL DEFAULT '',
-      content TEXT NOT NULL DEFAULT '',
-      cover_image TEXT,
-      author TEXT NOT NULL DEFAULT 'Admin',
-      status TEXT NOT NULL DEFAULT 'draft' CHECK(status IN ('draft', 'published')),
-      created_at INTEGER NOT NULL,
-      updated_at INTEGER NOT NULL
-    );
-
-    CREATE TABLE IF NOT EXISTS cms_users (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      username TEXT NOT NULL UNIQUE,
-      password_hash TEXT NOT NULL,
-      created_at INTEGER NOT NULL
-    );
-
-    CREATE TABLE IF NOT EXISTS cms_sessions (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      token TEXT NOT NULL UNIQUE,
-      user_id INTEGER NOT NULL REFERENCES cms_users(id),
-      expires_at INTEGER NOT NULL,
-      created_at INTEGER NOT NULL
-    );
-  `);
-
-  console.log("✅ Tables created");
-
-  // ─── Seed admin user ────────────────────────────────────
-  const existingUsers = db
-    .select()
-    .from(schema.cmsUsers)
-    .all();
-
-  if (existingUsers.length === 0) {
-    const passwordHash = hashPassword("admin123");
-    db.insert(schema.cmsUsers)
-      .values({
-        username: "admin",
-        passwordHash,
-      })
-      .run();
-    console.log("✅ Admin user created (username: admin, password: admin123)");
-  } else {
-    console.log("⏭️  Admin user already exists, skipping");
-  }
-
-  // ─── Seed sample blog posts ─────────────────────────────
-  const existingPosts = db
-    .select()
-    .from(schema.posts)
-    .all();
-
-  if (existingPosts.length === 0) {
-    const samplePosts = [
-      {
-        title: "Getting Started with Financial Analytics",
-        slug: "getting-started-financial-analytics",
-        excerpt:
-          "Learn how modern financial analytics can transform your business decision-making process with real-time data insights.",
-        content: `# Getting Started with Financial Analytics
+// ─── Sample blog posts ───────────────────────────────────
+const samplePosts = [
+  {
+    title: "Getting Started with Financial Analytics",
+    slug: "getting-started-financial-analytics",
+    excerpt:
+      "Learn how modern financial analytics can transform your business decision-making process with real-time data insights.",
+    content: `# Getting Started with Financial Analytics
 
 Financial analytics is the cornerstone of modern business strategy. In this guide, we explore how companies leverage data-driven insights to make smarter decisions.
 
@@ -120,17 +107,17 @@ In today's fast-paced markets, having access to real-time financial data isn't j
 The first step is auditing your current data infrastructure. Identify gaps in your data pipelines and prioritize the metrics that matter most to your stakeholders.
 
 Stay tuned for our next article on building custom dashboards.`,
-        author: "Sarah Chen",
-        status: "published" as const,
-        coverImage:
-          "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200",
-      },
-      {
-        title: "The Future of RegTech: Compliance Automation",
-        slug: "future-regtech-compliance-automation",
-        excerpt:
-          "Discover how regulatory technology is reshaping compliance workflows and reducing costs for financial institutions.",
-        content: `# The Future of RegTech: Compliance Automation
+    author: "Sarah Chen",
+    status: "published" as const,
+    coverImage:
+      "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200",
+  },
+  {
+    title: "The Future of RegTech: Compliance Automation",
+    slug: "future-regtech-compliance-automation",
+    excerpt:
+      "Discover how regulatory technology is reshaping compliance workflows and reducing costs for financial institutions.",
+    content: `# The Future of RegTech: Compliance Automation
 
 Regulatory technology (RegTech) is revolutionizing how financial institutions handle compliance. With increasing regulatory complexity, automation is no longer optional.
 
@@ -159,17 +146,17 @@ Modern RegTech solutions leverage AI and machine learning to automate:
 4. Measure and iterate
 
 The future of compliance is automated, intelligent, and proactive.`,
-        author: "Marcus Johnson",
-        status: "published" as const,
-        coverImage:
-          "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=1200",
-      },
-      {
-        title: "Building Resilient API-First Financial Platforms",
-        slug: "building-resilient-api-first-platforms",
-        excerpt:
-          "An in-depth look at designing API-first architectures for scalable and secure financial applications.",
-        content: `# Building Resilient API-First Financial Platforms
+    author: "Marcus Johnson",
+    status: "published" as const,
+    coverImage:
+      "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=1200",
+  },
+  {
+    title: "Building Resilient API-First Financial Platforms",
+    slug: "building-resilient-api-first-platforms",
+    excerpt:
+      "An in-depth look at designing API-first architectures for scalable and secure financial applications.",
+    content: `# Building Resilient API-First Financial Platforms
 
 API-first design has become the gold standard for modern financial platforms. Here's why — and how to do it right.
 
@@ -202,17 +189,17 @@ Implement distributed tracing, structured logging, and real-time alerting.
 ## Conclusion
 
 An API-first approach is not just a technical choice — it's a business strategy that enables agility and innovation.`,
-        author: "Alex Rivera",
-        status: "published" as const,
-        coverImage:
-          "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=1200",
-      },
-      {
-        title: "Risk Management in the Age of AI",
-        slug: "risk-management-age-of-ai",
-        excerpt:
-          "How artificial intelligence is transforming risk assessment and mitigation strategies in the financial sector.",
-        content: `# Risk Management in the Age of AI
+    author: "Alex Rivera",
+    status: "published" as const,
+    coverImage:
+      "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=1200",
+  },
+  {
+    title: "Risk Management in the Age of AI",
+    slug: "risk-management-age-of-ai",
+    excerpt:
+      "How artificial intelligence is transforming risk assessment and mitigation strategies in the financial sector.",
+    content: `# Risk Management in the Age of AI
 
 Artificial intelligence is fundamentally changing how financial institutions identify, assess, and mitigate risk.
 
@@ -246,17 +233,17 @@ NLP-powered systems analyze internal communications and processes to identify em
 ## The Path Forward
 
 The key is combining AI capabilities with human expertise. The best risk management frameworks use AI for detection and analysis while keeping humans in the decision loop.`,
-        author: "Dr. Lisa Wang",
-        status: "published" as const,
-        coverImage:
-          "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=1200",
-      },
-      {
-        title: "Understanding Blockchain in Enterprise Finance",
-        slug: "understanding-blockchain-enterprise-finance",
-        excerpt:
-          "A practical guide to blockchain adoption in enterprise finance — beyond the hype, what actually works.",
-        content: `# Understanding Blockchain in Enterprise Finance
+    author: "Dr. Lisa Wang",
+    status: "published" as const,
+    coverImage:
+      "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=1200",
+  },
+  {
+    title: "Understanding Blockchain in Enterprise Finance",
+    slug: "understanding-blockchain-enterprise-finance",
+    excerpt:
+      "A practical guide to blockchain adoption in enterprise finance — beyond the hype, what actually works.",
+    content: `# Understanding Blockchain in Enterprise Finance
 
 Blockchain technology has moved beyond cryptocurrency hype into practical enterprise applications. Here's what finance leaders need to know.
 
@@ -288,25 +275,67 @@ Real-world assets can be tokenized for fractional ownership and 24/7 trading.
 ## Looking Ahead
 
 Enterprise blockchain is entering its pragmatic phase. The winners will be organizations that focus on specific, high-value use cases rather than trying to blockchain everything.`,
-        author: "James Park",
-        status: "draft" as const,
-        coverImage:
-          "https://images.unsplash.com/photo-1639322537228-f710d846310a?w=1200",
-      },
-    ];
+    author: "James Park",
+    status: "draft" as const,
+    coverImage:
+      "https://images.unsplash.com/photo-1639322537228-f710d846310a?w=1200",
+  },
+];
 
-    for (const post of samplePosts) {
-      db.insert(schema.posts)
-        .values(post)
-        .run();
+// ─── Main seed function ─────────────────────────────────
+async function seed() {
+  const connection = await createSeedDb();
+  const { db } = connection;
+
+  // ─── Create tables ──────────────────────────────────────
+  console.log("🔧 Creating tables...");
+
+  if (connection.type === "local") {
+    for (const sql of CREATE_TABLES_SQL) {
+      connection.sqlite.exec(sql);
     }
+  } else {
+    for (const sql of CREATE_TABLES_SQL) {
+      await connection.client.execute(sql);
+    }
+  }
+  console.log("✅ Tables created");
 
+  // ─── Seed admin user ────────────────────────────────────
+  const existingUsers = await db
+    .select()
+    .from(schema.cmsUsers);
+
+  if (existingUsers.length === 0) {
+    const passwordHash = hashPassword("admin123");
+    await db.insert(schema.cmsUsers).values({
+      username: "admin",
+      passwordHash,
+    });
+    console.log("✅ Admin user created (username: admin, password: admin123)");
+  } else {
+    console.log("⏭️  Admin user already exists, skipping");
+  }
+
+  // ─── Seed sample blog posts ─────────────────────────────
+  const existingPosts = await db
+    .select()
+    .from(schema.posts);
+
+  if (existingPosts.length === 0) {
+    for (const post of samplePosts) {
+      await db.insert(schema.posts).values(post);
+    }
     console.log(`✅ ${samplePosts.length} sample blog posts created`);
   } else {
     console.log(`⏭️  ${existingPosts.length} posts already exist, skipping`);
   }
 
-  sqlite.close();
+  // ─── Cleanup ────────────────────────────────────────────
+  if (connection.type === "local") {
+    connection.sqlite.close();
+  }
+
   console.log("\n🎉 Seed completed successfully!");
   console.log("────────────────────────────────────────");
   console.log("  CMS Login Credentials:");
