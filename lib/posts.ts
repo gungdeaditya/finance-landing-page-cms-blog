@@ -1,4 +1,4 @@
-import { db, schema } from "../db";
+import { db, schema } from "./db";
 import { eq, desc } from "drizzle-orm";
 
 // ─── Helpers ─────────────────────────────────────────────
@@ -33,9 +33,6 @@ export interface UpdatePostInput {
 
 // ─── Service Methods ─────────────────────────────────────
 
-/**
- * List all posts, optionally filtered by status.
- */
 export async function listPosts(status?: string) {
   if (status === "published" || status === "draft") {
     return db
@@ -51,9 +48,6 @@ export async function listPosts(status?: string) {
     .orderBy(desc(schema.posts.createdAt));
 }
 
-/**
- * Get a single post by its slug.
- */
 export async function getPostBySlug(slug: string) {
   const results = await db
     .select()
@@ -64,9 +58,6 @@ export async function getPostBySlug(slug: string) {
   return results[0] ?? null;
 }
 
-/**
- * Get a single post by its ID.
- */
 export async function getPostById(id: number) {
   const results = await db
     .select()
@@ -77,9 +68,6 @@ export async function getPostById(id: number) {
   return results[0] ?? null;
 }
 
-/**
- * Create a new post. Throws on duplicate slug.
- */
 export async function createPost(input: CreatePostInput) {
   const slug = slugify(input.title);
   const now = new Date();
@@ -99,9 +87,6 @@ export async function createPost(input: CreatePostInput) {
   return getPostBySlug(slug);
 }
 
-/**
- * Update an existing post by ID. Returns the updated post or null if not found.
- */
 export async function updatePost(id: number, input: UpdatePostInput) {
   const updateData: Record<string, any> = { updatedAt: new Date() };
 
@@ -123,9 +108,6 @@ export async function updatePost(id: number, input: UpdatePostInput) {
   return getPostById(id);
 }
 
-/**
- * Delete a post by ID. Returns true if deleted, false if not found.
- */
 export async function deletePost(id: number): Promise<boolean> {
   const existing = await getPostById(id);
   if (!existing) return false;

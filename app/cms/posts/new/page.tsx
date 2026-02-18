@@ -43,7 +43,7 @@ export default function NewPostPage() {
         setError("");
 
         try {
-            const res = await fetch("/api/cms/posts", {
+            const res = await fetch("/api/posts", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 credentials: "include",

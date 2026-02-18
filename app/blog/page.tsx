@@ -22,7 +22,7 @@ export default function BlogListingPage() {
 
     useEffect(() => {
         document.title = "Blog — Insights & Resources | FinanceFlow";
-        fetch("/api/cms/posts?status=published")
+        fetch("/api/posts?status=published")
             .then((res) => res.json())
             .then((data) => {
                 setPosts(data);

@@ -18,7 +18,7 @@ export default function CMSLayout({ children }: { children: React.ReactNode }) {
         }
 
         // Validate session via API
-        fetch("/api/cms/auth/session", { credentials: "include" })
+        fetch("/api/auth/session", { credentials: "include" })
             .then((res) => {
                 if (!res.ok) {
                     router.push("/cms/login");
@@ -33,7 +33,7 @@ export default function CMSLayout({ children }: { children: React.ReactNode }) {
 
     const handleLogout = async () => {
         try {
-            await fetch("/api/cms/auth/logout", {
+            await fetch("/api/auth/logout", {
                 method: "POST",
                 credentials: "include",
             });

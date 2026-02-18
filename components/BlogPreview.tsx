@@ -20,7 +20,7 @@ export default function BlogPreview() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        fetch("/api/cms/posts?status=published")
+        fetch("/api/posts?status=published")
             .then((res) => res.json())
             .then((data) => {
                 setPosts(data.slice(0, 3));

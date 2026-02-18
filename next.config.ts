@@ -1,19 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  async rewrites() {
-    return [
-      {
-        source: "/api/cms/auth/:path*",
-        destination: "http://localhost:3001/api/auth/:path*",
-      },
-      {
-        source: "/api/cms/:path*",
-        destination: "http://localhost:3001/api/:path*",
-      },
-    ];
-  },
+  // API routes are now built into Next.js — no proxy needed
 };
 
 export default nextConfig;
-

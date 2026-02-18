@@ -13,7 +13,7 @@ export default function CMSLogin() {
 
     useEffect(() => {
         // Redirect if already authenticated
-        fetch("/api/cms/auth/session", { credentials: "include" })
+        fetch("/api/auth/session", { credentials: "include" })
             .then((res) => {
                 if (res.ok) router.push("/cms");
             })
@@ -26,7 +26,7 @@ export default function CMSLogin() {
         setLoading(true);
 
         try {
-            const res = await fetch("/api/cms/auth/login", {
+            const res = await fetch("/api/auth/login", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 credentials: "include",

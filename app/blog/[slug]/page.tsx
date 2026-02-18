@@ -27,7 +27,7 @@ export default function BlogDetailPage() {
 
     useEffect(() => {
         if (!slug) return;
-        fetch(`/api/cms/posts/${slug}`)
+        fetch(`/api/posts/${slug}`)
             .then((res) => {
                 if (!res.ok) throw new Error("Not found");
                 return res.json();

@@ -22,7 +22,7 @@ export default function CMSPostsPage() {
 
     function fetchPosts() {
         setLoading(true);
-        fetch("/api/cms/posts", { credentials: "include" })
+        fetch("/api/posts", { credentials: "include" })
             .then((res) => res.json())
             .then((data) => {
                 setPosts(data);
@@ -40,7 +40,7 @@ export default function CMSPostsPage() {
         if (!confirm("Are you sure you want to delete this post?")) return;
         setDeleting(id);
         try {
-            await fetch(`/api/cms/posts/${id}`, { method: "DELETE", credentials: "include" });
+            await fetch(`/api/posts/by-id/${id}`, { method: "DELETE", credentials: "include" });
             fetchPosts();
         } catch (error) {
             console.error("Failed to delete post:", error);

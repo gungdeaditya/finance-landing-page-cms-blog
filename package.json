@@ -7,10 +7,10 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "cms:dev": "npx tsx --watch cms/server.ts",
-    "db:migrate": "npx tsx cms/migrate.ts"
+    "db:push": "npx drizzle-kit push"
   },
   "dependencies": {
+    "@libsql/client": "^0.17.0",
     "@react-three/drei": "^10.7.7",
     "@react-three/fiber": "^9.5.0",
     "@types/three": "^0.182.0",
